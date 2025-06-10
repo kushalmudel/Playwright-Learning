@@ -85,3 +85,42 @@ test("first playwright test", async ({ browser, page }) => {
 
   await page.waitForTimeout(5000);
 });
+
+test.only("UI controls", async ({ page }) => {
+  //storing locators in variables
+  const userName = page.locator("#username");
+  const signInBtn = page.locator("#signInBtn");
+
+  await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
+
+  // Fill the username and password fields
+  await userName.fill("rahulshettyacademy");
+  await page.locator("#password").fill("learning");
+
+  await page
+    .locator(
+      "body > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > form:nth-child(1) > div:nth-child(4) > div:nth-child(1) > label:nth-child(2) > span:nth-child(3)"
+    )
+    .click();
+
+  await page.locator("#okayBtn").click();
+
+  // checking if the radio button is checked
+
+  await expect(
+    page.locator(
+      "body > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > form:nth-child(1) > div:nth-child(4) > div:nth-child(1) > label:nth-child(2) > span:nth-child(3)"
+    )
+  ).toBeChecked();
+
+  // selecting the dropdown option
+  // using selectOption method to select the option from the dropdown
+  const dropDown = page.locator("select[class='form-control']");
+  await dropDown.selectOption("consult");
+
+  await page.locator("#terms").click();
+  await expect(page.locator("#terms")).toBeChecked();
+  await signInBtn.click();
+
+  await page.pause();
+});
