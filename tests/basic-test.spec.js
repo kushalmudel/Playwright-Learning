@@ -86,7 +86,7 @@ test("first playwright test", async ({ browser, page }) => {
   await page.waitForTimeout(5000);
 });
 
-test.only("UI controls", async ({ page }) => {
+test("UI controls", async ({ page }) => {
   //storing locators in variables
   const userName = page.locator("#username");
   const signInBtn = page.locator("#signInBtn");
@@ -122,5 +122,39 @@ test.only("UI controls", async ({ page }) => {
   await expect(page.locator("#terms")).toBeChecked();
   await signInBtn.click();
 
+  await page.pause();
+});
+
+test.only("Child windows/tab handling", async ({ browser }) => {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
+
+  // locating the document link which opens in a new tab
+  // The link has a class of 'blinkingText' and href attribute pointing to the document request URL
+  const documentLink = page.locator(
+    ".blinkingText[href='https://rahulshettyacademy.com/documents-request']"
+  );
+
+  // promise.all is used to wait for multiple promises to resolve
+  const [newPage] = await Promise.all([
+    // This will wait for the new page to be opened after clicking the link
+    context.waitForEvent("page"),
+    documentLink.click(),
+  ]);
+
+  const text = await newPage.locator(".im-para.red").textContent();
+  console.log(text);
+
+  // splitting the text to get the domain name
+  const arrayText = text.split("@");
+
+  // extracting the domain name from the text
+  const domain = arrayText[1].split(" ")[0];
+  console.log(domain);
+
+  // filling the username field with the domain name
+  await page.locator("#username").fill(domain);
   await page.pause();
 });
